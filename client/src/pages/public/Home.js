@@ -37,6 +37,41 @@ const Home = () => {
       if (skillsData.success) setSkills(skillsData.skills);
     } catch (error) {
       console.error('Error fetching data:', error);
+      // Fallback demo data if database is not available
+      setProfile({
+        name: 'Your Name',
+        role: 'Full Stack Developer',
+        professional_identity: 'Software Engineer',
+        bio: 'Passionate about creating amazing web experiences. This is demo content - configure your database to add real content.',
+        email: 'your.email@example.com',
+        github_url: 'https://github.com',
+        linkedin_url: 'https://linkedin.com',
+        profile_image_url: 'https://via.placeholder.com/400x400?text=Your+Photo'
+      });
+      setProjects([
+        {
+          id: 1,
+          title: 'Demo Project 1',
+          description: 'This is a demo project. Set up your database to add real projects.',
+          tech_stack: 'React, Node.js, MongoDB',
+          category: 'Web Development',
+          image_url: 'https://via.placeholder.com/400x300?text=Project+1'
+        },
+        {
+          id: 2,
+          title: 'Demo Project 2',
+          description: 'Another demo project. Login to admin panel to add your actual projects.',
+          tech_stack: 'Vue.js, Express, MySQL',
+          category: 'Full Stack',
+          image_url: 'https://via.placeholder.com/400x300?text=Project+2'
+        }
+      ]);
+      setSkills([
+        { id: 1, name: 'JavaScript', proficiency: 90 },
+        { id: 2, name: 'React', proficiency: 85 },
+        { id: 3, name: 'Node.js', proficiency: 80 },
+        { id: 4, name: 'MySQL', proficiency: 75 }
+      ]);
     } finally {
       setLoading(false);
     }
