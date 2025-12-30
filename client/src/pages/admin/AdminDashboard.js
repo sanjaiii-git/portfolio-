@@ -9,7 +9,6 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('profile');
-  const [profile, setProfile] = useState(null);
   const [projects, setProjects] = useState([]);
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,6 +26,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchData = async () => {
@@ -42,7 +42,6 @@ const AdminDashboard = () => {
       const skillsData = await skillsRes.json();
 
       if (profileData.success) {
-        setProfile(profileData.profile);
         setProfileForm(profileData.profile);
       }
       if (projectsData.success) setProjects(projectsData.projects);
