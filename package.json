@@ -8,7 +8,8 @@
     "dev": "nodemon server/index.js",
     "client": "cd client && npm start",
     "dev:full": "concurrently \"npm run dev\" \"npm run client\"",
-    "setup-db": "node scripts/setup-database.js"
+    "setup-db": "node scripts/setup-database.js",
+    "vercel-build": "cd client && npm install && npm run build"
   },
   "keywords": [
     "portfolio",
