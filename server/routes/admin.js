@@ -123,10 +123,7 @@ router.put('/profile', async (req, res) => {
     try {
         const { name, role, professional_identity, bio, profile_image_url, resume_url, email, github_url, linkedin_url, twitter_url } = req.body;
 
-        // Check if using Postgres or MySQL
-        const isPostgres = process.env.POSTGRES_URL || process.env.DATABASE_URL;
-
-        if (isPostgres) {
+        if (db.isPostgres) {
             // Postgres: Use INSERT ... ON CONFLICT for upsert
             await db.query(
                 `INSERT INTO profile (id, name, role, professional_identity, bio, profile_image_url, resume_url, email, github_url, linkedin_url, twitter_url)
@@ -184,11 +181,9 @@ router.post('/projects', async (req, res) => {
     try {
         const { title, short_description, detailed_description, category, image_url, github_link, live_link, video_url, tech_stack, display_order } = req.body;
 
-        const isPostgres = process.env.POSTGRES_URL || process.env.DATABASE_URL;
-
         let projectId;
 
-        if (isPostgres) {
+        if (db.isPostgres) {
             // Postgres: RETURNING id
             const [result] = await db.query(
                 `INSERT INTO projects (title, short_description, detailed_description, category, image_url, github_link, live_link, video_url, display_order) 

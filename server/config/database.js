@@ -3,7 +3,7 @@ const { Pool } = require('pg');
 require('dotenv').config();
 
 // Check if using Postgres (Vercel) or MySQL (local)
-const isPostgres = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+const isPostgres = !!(process.env.POSTGRES_URL || process.env.DATABASE_URL);
 
 let db;
 
@@ -11,7 +11,7 @@ if (isPostgres) {
     // Postgres connection for Vercel
     const pool = new Pool({
         connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL,
-        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+        ssl: { rejectUnauthorized: false }
     });
 
     // Wrap Postgres to work like MySQL query format
@@ -22,8 +22,14 @@ if (isPostgres) {
             const pgSql = sql.replace(/\?/g, () => `$${paramIndex++}`);
             
             const result = await pool.query(pgSql, params);
-            return [result.rows]; // Return in MySQL format [rows, fields]
-        }
+            
+            // For INSERT/UPDATE/DELETE, return result with MySQL-like format
+            return [result.rows, { 
+                insertId: result.rows[0]?.id,
+                affectedRows: result.rowCount 
+            }];
+        },
+        isPostgres: true
     };
 
     pool.connect()
@@ -44,6 +50,7 @@ if (isPostgres) {
     });
 
     db = pool;
+    db.isPostgres = false;
 
     // Test connection
     pool.getConnection()
