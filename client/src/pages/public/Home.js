@@ -310,7 +310,7 @@ const Home = () => {
                           rel="noopener noreferrer"
                           className="btn-primary"
                         >
-                          Live Demo
+                          Visit Live Site
                         </a>
                       )}
                     </div>
