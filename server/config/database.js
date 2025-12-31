@@ -33,12 +33,14 @@ if (isPostgres) {
                 const result = await pool.query(pgSql, params);
                 
                 // For INSERT/UPDATE/DELETE, return result with MySQL-like format
+                // Return format: [rows, metadata] to match mysql2/promise
                 return [result.rows, { 
                     insertId: result.rows[0]?.id,
-                    affectedRows: result.rowCount 
+                    affectedRows: result.rowCount,
+                    serverStatus: 2  // Indicates INSERT success
                 }];
             } catch (error) {
-                console.error('Query error:', error.message);
+                console.error('Query error:', error.message, 'SQL:', sql, 'Params:', params);
                 throw error;
             }
         },

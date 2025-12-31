@@ -185,20 +185,20 @@ router.post('/projects', async (req, res) => {
 
         if (db.isPostgres) {
             // Postgres: RETURNING id
-            const [result] = await db.query(
+            const [rows, metadata] = await db.query(
                 `INSERT INTO projects (title, short_description, detailed_description, category, image_url, github_link, live_link, video_url, display_order) 
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
                 [title, short_description, detailed_description, category, image_url, github_link, live_link, video_url, display_order || 0]
             );
-            projectId = result[0].id;
+            projectId = rows[0].id;
         } else {
-            // MySQL: insertId
-            const [result] = await db.query(
+            // MySQL: insertId from metadata
+            const [rows, metadata] = await db.query(
                 `INSERT INTO projects (title, short_description, detailed_description, category, image_url, github_link, live_link, video_url, display_order) 
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [title, short_description, detailed_description, category, image_url, github_link, live_link, video_url, display_order || 0]
             );
-            projectId = result.insertId;
+            projectId = metadata.insertId;
         }
 
         // Add tech stack
@@ -231,7 +231,8 @@ router.put('/projects/:id', async (req, res) => {
         const { title, short_description, detailed_description, category, image_url, github_link, live_link, video_url, tech_stack, display_order } = req.body;
         const projectId = req.params.id;
 
-        await db.query(
+        // Update main project details
+        const updateResult = await db.query(
             `UPDATE projects SET 
                 title = ?, 
                 short_description = ?, 
@@ -246,15 +247,32 @@ router.put('/projects/:id', async (req, res) => {
             [title, short_description, detailed_description, category, image_url, github_link, live_link, video_url, display_order || 0, projectId]
         );
 
+        if (db.isPostgres) {
+            console.log('Postgres project update result:', updateResult);
+        } else {
+            console.log('MySQL project update affectedRows:', updateResult[1]?.affectedRows);
+        }
+
         // Update tech stack - delete old and insert new
-        await db.query('DELETE FROM tech_stack WHERE project_id = ?', [projectId]);
+        try {
+            await db.query('DELETE FROM tech_stack WHERE project_id = ?', [projectId]);
+            console.log('Tech stack deleted for project:', projectId);
+        } catch (delError) {
+            console.error('Error deleting tech stack:', delError);
+            throw delError;
+        }
         
         if (tech_stack && tech_stack.length > 0) {
             for (let tech of tech_stack) {
-                await db.query(
-                    'INSERT INTO tech_stack (project_id, technology) VALUES (?, ?)',
-                    [projectId, tech]
-                );
+                try {
+                    await db.query(
+                        'INSERT INTO tech_stack (project_id, technology) VALUES (?, ?)',
+                        [projectId, tech]
+                    );
+                } catch (insertError) {
+                    console.error('Error inserting tech:', tech, insertError);
+                    throw insertError;
+                }
             }
         }
 
@@ -263,10 +281,10 @@ router.put('/projects/:id', async (req, res) => {
             message: 'Project updated successfully'
         });
     } catch (error) {
-        console.error('Update project error:', error);
+        console.error('Update project error:', error.message, error);
         res.status(500).json({
             success: false,
-            message: 'Server error'
+            message: 'Server error: ' + error.message
         });
     }
 });
