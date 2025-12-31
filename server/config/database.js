@@ -11,30 +11,42 @@ if (isPostgres) {
     // Postgres connection for Vercel
     const pool = new Pool({
         connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false }
+        ssl: { rejectUnauthorized: false },
+        max: 10,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 10000,
+    });
+
+    // Handle connection errors
+    pool.on('error', (err) => {
+        console.error('❌ Unexpected Postgres error:', err.message);
     });
 
     // Wrap Postgres to work like MySQL query format
     db = {
         query: async (sql, params = []) => {
-            // Convert MySQL ? placeholders to Postgres $1, $2, etc.
-            let paramIndex = 1;
-            const pgSql = sql.replace(/\?/g, () => `$${paramIndex++}`);
-            
-            const result = await pool.query(pgSql, params);
-            
-            // For INSERT/UPDATE/DELETE, return result with MySQL-like format
-            return [result.rows, { 
-                insertId: result.rows[0]?.id,
-                affectedRows: result.rowCount 
-            }];
+            try {
+                // Convert MySQL ? placeholders to Postgres $1, $2, etc.
+                let paramIndex = 1;
+                const pgSql = sql.replace(/\?/g, () => `$${paramIndex++}`);
+                
+                const result = await pool.query(pgSql, params);
+                
+                // For INSERT/UPDATE/DELETE, return result with MySQL-like format
+                return [result.rows, { 
+                    insertId: result.rows[0]?.id,
+                    affectedRows: result.rowCount 
+                }];
+            } catch (error) {
+                console.error('Query error:', error.message);
+                throw error;
+            }
         },
         isPostgres: true
     };
 
-    pool.connect()
-        .then(() => console.log('✅ Postgres database connected successfully'))
-        .catch(err => console.error('❌ Postgres connection failed:', err.message));
+    console.log('✅ Postgres database configured');
+
 
 } else {
     // MySQL connection for local development

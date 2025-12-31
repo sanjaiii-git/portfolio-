@@ -27,8 +27,8 @@ app.get('/api/health', (req, res) => {
     res.json({ success: true, message: 'Server is running' });
 });
 
-// Start server (only in development, not on Vercel)
-if (process.env.NODE_ENV !== 'production') {
+// Start server (skip only on Vercel serverless, not local production mode)
+if (!process.env.VERCEL) {
     app.listen(PORT, () => {
         console.log(`🚀 Server running on port ${PORT}`);
         console.log(`📍 API available at http://localhost:${PORT}/api`);
