@@ -123,21 +123,46 @@ router.put('/profile', async (req, res) => {
     try {
         const { name, role, professional_identity, bio, profile_image_url, resume_url, email, github_url, linkedin_url, twitter_url } = req.body;
 
-        await db.query(
-            `UPDATE profile SET 
-                name = ?, 
-                role = ?, 
-                professional_identity = ?, 
-                bio = ?, 
-                profile_image_url = ?,
-                resume_url = ?,
-                email = ?,
-                github_url = ?,
-                linkedin_url = ?,
-                twitter_url = ?
-            WHERE id = 1`,
-            [name, role, professional_identity, bio, profile_image_url, resume_url, email, github_url, linkedin_url, twitter_url]
-        );
+        // Check if using Postgres or MySQL
+        const isPostgres = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+
+        if (isPostgres) {
+            // Postgres: Use INSERT ... ON CONFLICT for upsert
+            await db.query(
+                `INSERT INTO profile (id, name, role, professional_identity, bio, profile_image_url, resume_url, email, github_url, linkedin_url, twitter_url)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT (id) DO UPDATE SET
+                    name = EXCLUDED.name,
+                    role = EXCLUDED.role,
+                    professional_identity = EXCLUDED.professional_identity,
+                    bio = EXCLUDED.bio,
+                    profile_image_url = EXCLUDED.profile_image_url,
+                    resume_url = EXCLUDED.resume_url,
+                    email = EXCLUDED.email,
+                    github_url = EXCLUDED.github_url,
+                    linkedin_url = EXCLUDED.linkedin_url,
+                    twitter_url = EXCLUDED.twitter_url`,
+                [1, name, role, professional_identity, bio, profile_image_url, resume_url, email, github_url, linkedin_url, twitter_url]
+            );
+        } else {
+            // MySQL: Use UPDATE or INSERT ... ON DUPLICATE KEY
+            await db.query(
+                `INSERT INTO profile (id, name, role, professional_identity, bio, profile_image_url, resume_url, email, github_url, linkedin_url, twitter_url)
+                VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    name = VALUES(name),
+                    role = VALUES(role),
+                    professional_identity = VALUES(professional_identity),
+                    bio = VALUES(bio),
+                    profile_image_url = VALUES(profile_image_url),
+                    resume_url = VALUES(resume_url),
+                    email = VALUES(email),
+                    github_url = VALUES(github_url),
+                    linkedin_url = VALUES(linkedin_url),
+                    twitter_url = VALUES(twitter_url)`,
+                [name, role, professional_identity, bio, profile_image_url, resume_url, email, github_url, linkedin_url, twitter_url]
+            );
+        }
 
         res.json({
             success: true,
@@ -159,13 +184,27 @@ router.post('/projects', async (req, res) => {
     try {
         const { title, short_description, detailed_description, category, image_url, github_link, live_link, video_url, tech_stack, display_order } = req.body;
 
-        const [result] = await db.query(
-            `INSERT INTO projects (title, short_description, detailed_description, category, image_url, github_link, live_link, video_url, display_order) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [title, short_description, detailed_description, category, image_url, github_link, live_link, video_url, display_order || 0]
-        );
+        const isPostgres = process.env.POSTGRES_URL || process.env.DATABASE_URL;
 
-        const projectId = result.insertId;
+        let projectId;
+
+        if (isPostgres) {
+            // Postgres: RETURNING id
+            const [result] = await db.query(
+                `INSERT INTO projects (title, short_description, detailed_description, category, image_url, github_link, live_link, video_url, display_order) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+                [title, short_description, detailed_description, category, image_url, github_link, live_link, video_url, display_order || 0]
+            );
+            projectId = result[0].id;
+        } else {
+            // MySQL: insertId
+            const [result] = await db.query(
+                `INSERT INTO projects (title, short_description, detailed_description, category, image_url, github_link, live_link, video_url, display_order) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [title, short_description, detailed_description, category, image_url, github_link, live_link, video_url, display_order || 0]
+            );
+            projectId = result.insertId;
+        }
 
         // Add tech stack
         if (tech_stack && tech_stack.length > 0) {
