@@ -59,10 +59,10 @@ CREATE TABLE IF NOT EXISTS skills (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Insert default admin user (username: admin, password: admin123)
--- Password hash for 'admin123' using bcrypt
+-- Insert default admin user (username: sanjaiii, password: sanjaiii_portfolio)
+-- Password hash for 'sanjaiii_portfolio' using bcrypt
 INSERT INTO admin (username, password_hash, email) 
-VALUES ('admin', '$2a$10$rOiLXm6QHwKPZVvYvV5oJeK8F7xJ8F7xJ8F7xJ8F7xJ8F7xJ8F7xJ', 'admin@portfolio.com')
+VALUES ('sanjaiii', '$2a$10$lOHcL470GJr7JhAwzQyDHuwgNFkVYYLRYzSLlE8aNdhrdFrzboe.S', 'sanjai@portfolio.com')
 ON CONFLICT (username) DO NOTHING;
 
 -- Insert default profile data

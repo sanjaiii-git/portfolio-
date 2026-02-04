@@ -20,9 +20,9 @@ router.post('/login', async (req, res) => {
         // Demo mode: if database is not available, allow demo login
         if (!db || process.env.DB_HOST === 'localhost' || process.env.DB_HOST === 'demo') {
             // Demo credentials
-            if (username === 'admin' && password === 'admin123') {
+            if (username === 'sanjaiii' && password === 'sanjaiii_portfolio') {
                 const token = jwt.sign(
-                    { id: 1, username: 'admin' },
+                    { id: 1, username: 'sanjaiii' },
                     process.env.JWT_SECRET || 'demo-secret',
                     { expiresIn: '24h' }
                 );
@@ -33,14 +33,14 @@ router.post('/login', async (req, res) => {
                     token,
                     admin: {
                         id: 1,
-                        username: 'admin',
+                        username: 'sanjaiii',
                         email: 'demo@example.com'
                     }
                 });
             } else {
                 return res.status(401).json({
                     success: false,
-                    message: 'Demo mode: Use username "admin" and password "admin123"'
+                    message: 'Demo mode: Use username "sanjaiii" and password "sanjaiii_portfolio"'
                 });
             }
         }

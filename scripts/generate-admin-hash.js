@@ -1,8 +1,8 @@
 const bcrypt = require('bcryptjs');
 
-// Generate password hash for 'sanjaiii-portfolio'
-const username = 'sanjai020206';
-const password = 'sanjaiii-portfolio';
+// Generate password hash for admin
+const username = 'sanjaiii';
+const password = 'sanjaiii_portfolio';
 const saltRounds = 10;
 
 bcrypt.hash(password, saltRounds, (err, hash) => {

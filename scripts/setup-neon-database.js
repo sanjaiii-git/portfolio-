@@ -24,8 +24,8 @@ async function setupDatabase() {
         const schemaPath = path.join(__dirname, '../database/schema-postgres.sql');
         let schema = fs.readFileSync(schemaPath, 'utf8');
 
-        // Generate proper password hash for admin123
-        const passwordHash = await bcrypt.hash('admin123', 10);
+        // Generate proper password hash for sanjaiii_portfolio
+        const passwordHash = await bcrypt.hash('sanjaiii_portfolio', 10);
         
         // Replace the placeholder hash with real one
         schema = schema.replace(/\$2a\$10\$[^\s']+/, passwordHash);
@@ -36,8 +36,8 @@ async function setupDatabase() {
         
         console.log('✅ Database setup completed!\n');
         console.log('📋 Default admin credentials:');
-        console.log('   Username: admin');
-        console.log('   Password: admin123');
+        console.log('   Username: sanjaiii');
+        console.log('   Password: sanjaiii_portfolio');
         console.log('\n🎉 Your portfolio is ready!');
         console.log('   - Local: http://localhost:3000');
         console.log('   - Production: https://portfolio-rmnh.vercel.app\n');

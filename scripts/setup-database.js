@@ -113,19 +113,19 @@ async function setupDatabase() {
     console.log('\n📝 Inserting default data...');
 
     // Hash password for admin
-    const passwordHash = await bcrypt.hash('admin123', 10);
+    const passwordHash = await bcrypt.hash('sanjaiii_portfolio', 10);
 
     // Check if admin exists
-    const [admins] = await connection.query('SELECT * FROM admin WHERE username = ?', ['admin']);
+    const [admins] = await connection.query('SELECT * FROM admin WHERE username = ?', ['sanjaiii']);
     
     if (admins.length === 0) {
       await connection.query(
         'INSERT INTO admin (username, password_hash, email) VALUES (?, ?, ?)',
-        ['admin', passwordHash, 'admin@portfolio.com']
+        ['sanjaiii', passwordHash, 'sanjai@portfolio.com']
       );
       console.log('✅ Admin user created');
-      console.log('   Username: admin');
-      console.log('   Password: admin123');
+      console.log('   Username: sanjaiii');
+      console.log('   Password: sanjaiii_portfolio');
     } else {
       console.log('ℹ️  Admin user already exists');
     }

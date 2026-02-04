@@ -82,16 +82,14 @@ You'll need to create an admin user. Run this SQL:
 ```sql
 USE portfolio_db;
 
--- Create admin user (username: admin, password: admin123)
+-- Create admin user (username: sanjaiii, password: sanjaiii_portfolio)
 INSERT INTO admin (username, password_hash, email) 
-VALUES ('admin', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin@portfolio.com');
+VALUES ('sanjaiii', '$2a$10$lOHcL470GJr7JhAwzQyDHuwgNFkVYYLRYzSLlE8aNdhrdFrzboe.S', 'sanjai@portfolio.com');
 ```
 
 **Login Credentials:**
-- Username: `admin`
-- Password: `admin123`
-
-⚠️ **IMPORTANT:** Change these credentials after first login!
+- Username: `sanjaiii`
+- Password: `sanjaiii_portfolio`
 
 ## Project Structure
 
