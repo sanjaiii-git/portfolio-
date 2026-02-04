@@ -40,7 +40,7 @@ router.post('/login', async (req, res) => {
             } else {
                 return res.status(401).json({
                     success: false,
-                    message: 'Demo mode: Use username "sanjaiii" and password "sanjaiii_portfolio"'
+                    message: 'Access Restricted - This section is reserved for the site administrator.'
                 });
             }
         }
